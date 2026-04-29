@@ -3,86 +3,53 @@ import { createRoot } from 'react-dom/client';
 import './image-ui.css';
 
 const PAGES = {
-  home: { title: '首页', image: '/ui/home.svg' },
-  trip: { title: '行程', image: '/ui/trip.svg' },
-  service: { title: '服务', image: '/ui/service.svg' },
-  ai: { title: 'AI 管家', image: '/ui/ai.svg' },
-  entertainment: { title: '娱乐', image: '/ui/entertainment.svg' },
-  wifi: { title: 'Wi‑Fi', image: '/ui/wifi.svg' }
+  home: { title: '首页', icon: '🏠' },
+  trip: { title: '行程', icon: '🗺️' },
+  service: { title: '服务', icon: '🛎️' },
+  ai: { title: 'AI 管家', icon: '✨' },
+  entertainment: { title: '娱乐', icon: '🎬' },
+  wifi: { title: 'Wi‑Fi', icon: '📶' }
 };
 
 const NAV = [
-  { id: 'home', label: '首页', x: 0, y: 7, w: 13, h: 11 },
-  { id: 'trip', label: '行程', x: 0, y: 18, w: 13, h: 11 },
-  { id: 'service', label: '服务', x: 0, y: 30, w: 13, h: 11 },
-  { id: 'ai', label: 'AI 管家', x: 0, y: 42, w: 13, h: 11 },
-  { id: 'entertainment', label: '娱乐', x: 0, y: 54, w: 13, h: 11 },
-  { id: 'wifi', label: 'Wi‑Fi', x: 0, y: 66, w: 13, h: 11 }
+  { id: 'home', label: '首页', icon: '🏠' },
+  { id: 'trip', label: '行程', icon: '🗺️' },
+  { id: 'service', label: '服务', icon: '🛎️' },
+  { id: 'ai', label: 'AI 管家', icon: '✨' },
+  { id: 'entertainment', label: '娱乐', icon: '🎬' },
+  { id: 'wifi', label: 'Wi‑Fi', icon: '📶' }
 ];
 
-const HOTSPOTS = {
-  home: [
-    { label: '查看实时行程', target: 'trip', x: 14, y: 15, w: 84, h: 19 },
-    { label: '行程概览', target: 'trip', x: 15, y: 35, w: 27, h: 30 },
-    { label: '舒适体验', target: 'service', x: 42, y: 35, w: 27, h: 30 },
-    { label: '矿泉水', request: '矿泉水', x: 70, y: 42, w: 8.5, h: 20 },
-    { label: '纸巾', request: '纸巾', x: 79, y: 42, w: 8.5, h: 20 },
-    { label: '充电线', request: '充电线', x: 88, y: 42, w: 8.5, h: 20 },
-    { label: 'AI 管家', target: 'ai', x: 15, y: 65, w: 27, h: 18 },
-    { label: '娱乐', target: 'entertainment', x: 42, y: 65, w: 27, h: 18 },
-    { label: 'Wi‑Fi', target: 'wifi', x: 69, y: 65, w: 29, h: 18 },
-    { label: '座椅调节', request: '座椅调节', x: 16, y: 84, w: 18, h: 12 },
-    { label: '氛围灯', request: '氛围灯', x: 34, y: 84, w: 14, h: 12 },
-    { label: '行程中', target: 'trip', x: 48, y: 82, w: 9, h: 15 },
-    { label: '遮阳帘', request: '遮阳帘', x: 57, y: 84, w: 19, h: 12 },
-    { label: '静音模式', request: '静音模式', x: 76, y: 84, w: 22, h: 12 },
-    { label: '一键呼叫', request: '一键呼叫服务', x: 1, y: 82, w: 12, h: 10 }
-  ],
-  trip: [
-    { label: '路况提示', request: '路况提示', x: 15, y: 84, w: 25, h: 11 },
-    { label: '舒适模式', target: 'service', x: 41, y: 84, w: 26, h: 11 },
-    { label: '平稳驾驶提醒', request: '平稳驾驶提醒', x: 68, y: 84, w: 29, h: 11 },
-    { label: '一键呼叫', request: '一键呼叫服务', x: 1, y: 84, w: 12, h: 10 }
-  ],
-  service: [
-    { label: '矿泉水', request: '矿泉水', x: 15, y: 15, w: 26, h: 22 },
-    { label: '纸巾', request: '纸巾', x: 42, y: 15, w: 26, h: 22 },
-    { label: '充电线', request: '充电线', x: 68, y: 15, w: 27, h: 22 },
-    { label: '调高空调', request: '调高空调', x: 15, y: 38, w: 26, h: 22 },
-    { label: '调低空调', request: '调低空调', x: 42, y: 38, w: 26, h: 22 },
-    { label: '需要安静', request: '需要安静', x: 68, y: 38, w: 27, h: 22 },
-    { label: '一键呼叫服务', request: '一键呼叫服务', x: 15, y: 82, w: 80, h: 9 }
-  ],
-  ai: [
-    { label: '附近美食', request: '附近美食推荐', x: 14, y: 65, w: 11, h: 7 },
-    { label: '景点推荐', request: '景点推荐', x: 25, y: 65, w: 11, h: 7 },
-    { label: '附近商场', request: '附近商场推荐', x: 36, y: 65, w: 11, h: 7 },
-    { label: '行程小贴士', request: '行程小贴士', x: 48, y: 65, w: 11, h: 7 },
-    { label: '发送', request: 'AI 管家咨询', x: 14, y: 74, w: 45, h: 9 },
-    { label: '查看详情', request: '查看餐厅详情', x: 86, y: 34, w: 10, h: 7 },
-    { label: '快速呼叫', request: '快速呼叫服务专员', x: 12, y: 88, w: 20, h: 9 },
-    { label: '路线规划', target: 'trip', x: 33, y: 88, w: 20, h: 9 },
-    { label: '天气查询', request: '天气查询', x: 54, y: 88, w: 20, h: 9 },
-    { label: '翻译助手', request: '翻译助手', x: 75, y: 88, w: 21, h: 9 }
-  ],
-  entertainment: [
-    { label: '播放音乐', request: '播放音乐', x: 36, y: 27, w: 22, h: 13 },
-    { label: '热门资讯', request: '查看热门资讯', x: 10, y: 40, w: 28, h: 32 },
-    { label: '搞笑段子', request: '查看搞笑段子', x: 39, y: 40, w: 27, h: 32 },
-    { label: '精选短视频', request: '查看精选短视频', x: 66, y: 40, w: 31, h: 32 },
-    { label: '轻松电台', request: '播放轻松电台', x: 10, y: 74, w: 88, h: 22 }
-  ],
-  wifi: [
-    { label: '复制密码', request: '复制 Wi‑Fi 密码', x: 15, y: 60, w: 12, h: 8 },
-    { label: '重新显示', request: '重新显示 Wi‑Fi 密码', x: 27, y: 60, w: 12, h: 8 },
-    { label: '扫码连接', request: '扫码连接 Wi‑Fi', x: 41, y: 42, w: 19, h: 26 },
-    { label: '空调温度', target: 'service', x: 13, y: 86, w: 17, h: 10 },
-    { label: '座椅调节', request: '座椅调节', x: 30, y: 86, w: 17, h: 10 },
-    { label: '氛围灯', request: '氛围灯', x: 47, y: 86, w: 17, h: 10 },
-    { label: '窗帘控制', request: '窗帘控制', x: 64, y: 86, w: 17, h: 10 },
-    { label: '隐私模式', request: '隐私模式', x: 81, y: 86, w: 17, h: 10 }
-  ]
-};
+const QUICK_ACTIONS = [
+  { label: '座椅调节', request: '座椅调节', icon: '🪑' },
+  { label: '氛围灯', request: '氛围灯', icon: '💡' },
+  { label: '遮阳帘', request: '遮阳帘', icon: '🌅' },
+  { label: '静音模式', request: '静音模式', icon: '🔇' }
+];
+
+const SERVICE_ITEMS = [
+  { label: '矿泉水', request: '矿泉水', icon: '💧' },
+  { label: '纸巾', request: '纸巾', icon: '🧻' },
+  { label: '充电线', request: '充电线', icon: '🔌' },
+  { label: '调高空调', request: '调高空调', icon: '🔺' },
+  { label: '调低空调', request: '调低空调', icon: '🔻' },
+  { label: '需要安静', request: '需要安静', icon: '🤫' }
+];
+
+const ENTERTAINMENT_ITEMS = [
+  { label: '播放音乐', request: '播放音乐', icon: '🎵', gradient: 'from-purple-500 to-pink-500' },
+  { label: '热门资讯', request: '查看热门资讯', icon: '📰', gradient: 'from-blue-500 to-cyan-500' },
+  { label: '搞笑段子', request: '查看搞笑段子', icon: '😄', gradient: 'from-orange-500 to-yellow-500' },
+  { label: '精选短视频', request: '查看精选短视频', icon: '🎥', gradient: 'from-red-500 to-rose-500' },
+  { label: '轻松电台', request: '播放轻松电台', icon: '📻', gradient: 'from-green-500 to-emerald-500' }
+];
+
+const AI_SUGGESTIONS = [
+  { label: '附近美食', request: '附近美食推荐', icon: '🍜' },
+  { label: '景点推荐', request: '景点推荐', icon: '🏞️' },
+  { label: '附近商场', request: '附近商场推荐', icon: '🏬' },
+  { label: '行程小贴士', request: '行程小贴士', icon: '💡' }
+];
 
 function App() {
   const isDriver = location.pathname.startsWith('/driver') || new URLSearchParams(location.search).get('app') === 'driver';
@@ -93,7 +60,6 @@ function PassengerImageApp() {
   const [page, setPage] = useState('home');
   const [toasts, setToasts] = useState([]);
   const current = PAGES[page] || PAGES.home;
-  const hotspots = useMemo(() => [...NAV, ...(HOTSPOTS[page] || [])], [page]);
 
   function toast(text) {
     const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -107,25 +73,293 @@ function PassengerImageApp() {
       await fetch('/api/service-request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ label, type: 'image-hotspot', detail: '乘客在图片底图版界面点击' })
+        body: JSON.stringify({ label, type: 'modern-ui', detail: '乘客在现代 UI 界面点击' })
       });
     } catch {}
   }
 
-  function tap(h) {
-    if (h.target) return setPage(h.target);
-    if (PAGES[h.id]) return setPage(h.id);
-    if (h.request) return sendRequest(h.request);
+  function tap(item) {
+    if (item.target) return setPage(item.target);
+    if (PAGES[item.id]) return setPage(item.id);
+    if (item.request) return sendRequest(item.request);
   }
 
-  return <main className="image-ui-app" aria-label="RideLux 图片底图版乘客端">
-    <img className="image-ui-bg" src={current.image} alt={`${current.title} 页面底图`} draggable="false" />
-    <div className="hotspot-layer">
-      {hotspots.map((h, i) => <button key={`${page}-${h.id || h.label}-${i}`} className="hotspot" title={h.label} aria-label={h.label} onClick={() => tap(h)} style={{ left: `${h.x}%`, top: `${h.y}%`, width: `${h.w}%`, height: `${h.h}%` }} />)}
+  return (
+    <main className="modern-app" aria-label="RideLux 后排管家">
+      {/* Header */}
+      <header className="app-header">
+        <div className="header-brand">
+          <span className="brand-logo">M</span>
+          <span className="brand-name">RideLux</span>
+        </div>
+        <div className="header-status">
+          <span className="status-dot"></span>
+          <span className="status-text">行程中</span>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="app-content">
+        {page === 'home' && (
+          <HomePage onTap={tap} />
+        )}
+        {page === 'trip' && (
+          <TripPage onTap={tap} />
+        )}
+        {page === 'service' && (
+          <ServicePage onTap={tap} />
+        )}
+        {page === 'ai' && (
+          <AIPage onTap={tap} />
+        )}
+        {page === 'entertainment' && (
+          <EntertainmentPage onTap={tap} />
+        )}
+        {page === 'wifi' && (
+          <WiFiPage onTap={tap} />
+        )}
+      </div>
+
+      {/* Bottom Navigation */}
+      <nav className="bottom-nav">
+        {NAV.map((item) => (
+          <button
+            key={item.id}
+            className={`nav-item ${page === item.id ? 'active' : ''}`}
+            onClick={() => tap(item)}
+          >
+            <span className="nav-icon">{item.icon}</span>
+            <span className="nav-label">{item.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <ToastStack toasts={toasts} />
+    </main>
+  );
+}
+
+function HomePage({ onTap }) {
+  return (
+    <div className="page home-page">
+      <div className="welcome-section">
+        <h1 className="welcome-title">欢迎乘坐 RideLux</h1>
+        <p className="welcome-subtitle">尊享出行体验，从此刻开始</p>
+      </div>
+
+      <div className="quick-actions">
+        <h2 className="section-title">快捷服务</h2>
+        <div className="action-grid">
+          {QUICK_ACTIONS.map((action) => (
+            <button
+              key={action.label}
+              className="action-card"
+              onClick={() => onTap(action)}
+            >
+              <span className="action-icon">{action.icon}</span>
+              <span className="action-label">{action.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="info-cards">
+        <div className="info-card trip-preview" onClick={() => onTap({ target: 'trip' })}>
+          <span className="card-icon">🗺️</span>
+          <div className="card-content">
+            <h3>查看实时行程</h3>
+            <p>了解当前路线与预计到达时间</p>
+          </div>
+          <span className="card-arrow">›</span>
+        </div>
+        <div className="info-card service-preview" onClick={() => onTap({ target: 'service' })}>
+          <span className="card-icon">🛎️</span>
+          <div className="card-content">
+            <h3>舒适体验</h3>
+            <p>定制您的专属车内环境</p>
+          </div>
+          <span className="card-arrow">›</span>
+        </div>
+      </div>
+
+      <div className="promo-row">
+        <div className="promo-card ai-promo" onClick={() => onTap({ target: 'ai' })}>
+          <span className="promo-icon">✨</span>
+          <span className="promo-label">AI 管家</span>
+        </div>
+        <div className="promo-card entertainment-promo" onClick={() => onTap({ target: 'entertainment' })}>
+          <span className="promo-icon">🎬</span>
+          <span className="promo-label">娱乐</span>
+        </div>
+        <div className="promo-card wifi-promo" onClick={() => onTap({ target: 'wifi' })}>
+          <span className="promo-icon">📶</span>
+          <span className="promo-label">Wi‑Fi</span>
+        </div>
+      </div>
     </div>
-    <div className="image-ui-page-chip">{current.title}</div>
-    <ToastStack toasts={toasts} />
-  </main>;
+  );
+}
+
+function TripPage({ onTap }) {
+  return (
+    <div className="page trip-page">
+      <div className="map-placeholder">
+        <div className="map-content">
+          <span className="map-icon">🗺️</span>
+          <p>实时路况显示区域</p>
+        </div>
+      </div>
+      
+      <div className="trip-info">
+        <div className="trip-status">
+          <span className="status-badge">行驶中</span>
+          <span className="eta">预计 15:30 到达</span>
+        </div>
+        <div className="trip-details">
+          <p className="destination">目的地：上海浦东国际机场</p>
+          <p className="distance">剩余距离 28.5 km</p>
+        </div>
+      </div>
+
+      <div className="trip-actions">
+        <button className="trip-action-btn" onClick={() => onTap({ request: '路况提示' })}>
+          📢 路况提示
+        </button>
+        <button className="trip-action-btn" onClick={() => onTap({ target: 'service' })}>
+          🛎️ 舒适模式
+        </button>
+        <button className="trip-action-btn" onClick={() => onTap({ request: '平稳驾驶提醒' })}>
+          🚗 平稳驾驶
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ServicePage({ onTap }) {
+  return (
+    <div className="page service-page">
+      <h2 className="page-title">服务请求</h2>
+      <div className="service-grid">
+        {SERVICE_ITEMS.map((item) => (
+          <button
+            key={item.label}
+            className="service-card"
+            onClick={() => onTap(item)}
+          >
+            <span className="service-icon">{item.icon}</span>
+            <span className="service-label">{item.label}</span>
+          </button>
+        ))}
+      </div>
+      <button className="call-service-btn" onClick={() => onTap({ request: '一键呼叫服务' })}>
+        📞 一键呼叫服务专员
+      </button>
+    </div>
+  );
+}
+
+function AIPage({ onTap }) {
+  return (
+    <div className="page ai-page">
+      <div className="ai-header">
+        <span className="ai-avatar">✨</span>
+        <h2 className="ai-title">AI 智能管家</h2>
+        <p className="ai-subtitle">有什么可以帮您的吗？</p>
+      </div>
+
+      <div className="ai-suggestions">
+        <h3 className="suggestion-title">推荐查询</h3>
+        <div className="suggestion-grid">
+          {AI_SUGGESTIONS.map((item) => (
+            <button
+              key={item.label}
+              className="suggestion-chip"
+              onClick={() => onTap(item)}
+            >
+              <span className="chip-icon">{item.icon}</span>
+              <span className="chip-label">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="ai-input-area">
+        <input type="text" placeholder="输入您的问题..." className="ai-input" />
+        <button className="ai-send-btn" onClick={() => onTap({ request: 'AI 管家咨询' })}>
+          发送
+        </button>
+      </div>
+
+      <div className="ai-quick-links">
+        <button className="quick-link" onClick={() => onTap({ request: '快速呼叫服务专员' })}>📞 快速呼叫</button>
+        <button className="quick-link" onClick={() => onTap({ target: 'trip' })}>🗺️ 路线规划</button>
+        <button className="quick-link" onClick={() => onTap({ request: '天气查询' })}>🌤️ 天气查询</button>
+        <button className="quick-link" onClick={() => onTap({ request: '翻译助手' })}>🌐 翻译助手</button>
+      </div>
+    </div>
+  );
+}
+
+function EntertainmentPage({ onTap }) {
+  return (
+    <div className="page entertainment-page">
+      <h2 className="page-title">娱乐中心</h2>
+      <div className="entertainment-grid">
+        {ENTERTAINMENT_ITEMS.map((item) => (
+          <button
+            key={item.label}
+            className={`entertainment-card gradient-${item.gradient}`}
+            onClick={() => onTap(item)}
+          >
+            <span className="entertainment-icon">{item.icon}</span>
+            <span className="entertainment-label">{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function WiFiPage({ onTap }) {
+  return (
+    <div className="page wifi-page">
+      <div className="wifi-header">
+        <span className="wifi-icon">📶</span>
+        <h2>车载 Wi-Fi</h2>
+      </div>
+      
+      <div className="wifi-card">
+        <div className="wifi-info">
+          <p className="wifi-ssid">网络名称：RideLux_Guest</p>
+          <p className="wifi-password">密码：88888888</p>
+        </div>
+        <div className="wifi-actions">
+          <button className="wifi-action-btn" onClick={() => onTap({ request: '复制 Wi‑Fi 密码' })}>
+            📋 复制密码
+          </button>
+          <button className="wifi-action-btn" onClick={() => onTap({ request: '重新显示 Wi‑Fi 密码' })}>
+            👁️ 重新显示
+          </button>
+        </div>
+        <div className="qr-placeholder">
+          <span className="qr-icon">📱</span>
+          <p>扫码连接 Wi-Fi</p>
+        </div>
+      </div>
+
+      <div className="quick-controls">
+        <h3 className="controls-title">快速控制</h3>
+        <div className="control-row">
+          <button className="control-btn" onClick={() => onTap({ target: 'service' })}>🌡️ 空调</button>
+          <button className="control-btn" onClick={() => onTap({ request: '座椅调节' })}>🪑 座椅</button>
+          <button className="control-btn" onClick={() => onTap({ request: '氛围灯' })}>💡 氛围灯</button>
+          <button className="control-btn" onClick={() => onTap({ request: '窗帘控制' })}>🌅 窗帘</button>
+          <button className="control-btn" onClick={() => onTap({ request: '隐私模式' })}>🔒 隐私</button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function ToastStack({ toasts }) {
