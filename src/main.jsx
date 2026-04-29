@@ -306,6 +306,9 @@ function Control({ icon: Icon, label }) {
   return <button className="flex flex-1 flex-col items-center justify-center space-y-2 text-[#8B94A5] transition-colors hover:text-white"><Icon size={24} /><span className="text-[12px]">{label}</span></button>;
 }
 
+const START = [114.411265, 38.067183];
+const END = [114.471381, 38.042531];
+
 const fallbackRoute = [
   [114.411265, 38.067183], [114.413521, 38.066422], [114.416817, 38.065164],
   [114.421241, 38.063579], [114.428968, 38.061344], [114.437702, 38.058843],
@@ -314,50 +317,162 @@ const fallbackRoute = [
 ];
 
 function TripScreen({ time }) {
-  const [tick, setTick] = useState(0);
+  const mapContainer = useRef(null);
+  const mapRef = useRef(null);
+  const carMarkerRef = useRef(null);
+  const [trip, setTrip] = useState({
+    distanceLeft: '--',
+    etaMins: '--',
+    currentSpeed: '42',
+    arrivalTime: '--:--',
+    progress: 0,
+    status: '路线加载中...',
+    instructionTitle: '正在获取路线',
+    instructionSub: '良城逸园 → 新百广场'
+  });
+
   useEffect(() => {
-    const timer = setInterval(() => setTick((t) => (t + 1) % 100), 1100);
-    return () => clearInterval(timer);
+    let currentIndex = 0;
+    let routeCoords = fallbackRoute;
+    let routeDistanceMeters = estimateDistance(fallbackRoute);
+    let durationSeconds = routeDistanceMeters / 8.5;
+    let intervalId;
+    let disposed = false;
+
+    loadMapLibre().then(async () => {
+      if (disposed || !mapContainer.current || mapRef.current || !window.maplibregl) return;
+
+      const map = new window.maplibregl.Map({
+        container: mapContainer.current,
+        style: 'https://tiles.openfreemap.org/styles/dark',
+        center: [114.443, 38.055],
+        zoom: 13.4,
+        pitch: 58,
+        bearing: -18,
+        attributionControl: false
+      });
+
+      mapRef.current = map;
+      map.addControl(new window.maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
+
+      const carEl = document.createElement('div');
+      carEl.className = 'car-marker';
+      carEl.innerHTML = '<div class="car-body">▲</div>';
+
+      carMarkerRef.current = new window.maplibregl.Marker({
+        element: carEl,
+        rotationAlignment: 'map',
+        pitchAlignment: 'map'
+      }).setLngLat(START);
+
+      map.on('load', async () => {
+        if (disposed) return;
+        carMarkerRef.current.addTo(map);
+
+        const route = await fetchRouteFromOSRM();
+        routeCoords = route?.coords?.length ? route.coords : fallbackRoute;
+        routeDistanceMeters = route?.distance || estimateDistance(routeCoords);
+        durationSeconds = route?.duration || routeDistanceMeters / 8.5;
+
+        if (route) {
+          setTrip((prev) => ({
+            ...prev,
+            status: '真实路线已加载',
+            instructionTitle: firstInstruction(route.raw),
+            instructionSub: '模拟导航 | 前往新百广场'
+          }));
+        } else {
+          setTrip((prev) => ({
+            ...prev,
+            status: '使用本地备用路线',
+            instructionTitle: '沿路线前往新百广场',
+            instructionSub: '模拟导航 | 良城逸园出发'
+          }));
+        }
+
+        drawMapRoute(map, routeCoords);
+        fitMapRoute(map, routeCoords);
+        updateTripInfo(0, routeDistanceMeters, durationSeconds, setTrip);
+
+        intervalId = setInterval(() => {
+          if (!mapRef.current || !carMarkerRef.current) return;
+          currentIndex = (currentIndex + 1) % routeCoords.length;
+
+          const pos = routeCoords[currentIndex];
+          const prev = routeCoords[Math.max(0, currentIndex - 1)];
+          const bearing = calcBearing(prev, pos);
+
+          carMarkerRef.current.setLngLat(pos);
+          carEl.style.transform = `rotate(${bearing}deg)`;
+
+          mapRef.current.easeTo({
+            center: pos,
+            zoom: 15.4,
+            pitch: 62,
+            bearing: bearing - 20,
+            duration: 900
+          });
+
+          updateTripInfo(currentIndex / (routeCoords.length - 1), routeDistanceMeters, durationSeconds, setTrip);
+        }, 1100);
+      });
+    }).catch(() => {
+      setTrip((prev) => ({
+        ...prev,
+        status: '地图加载失败',
+        instructionTitle: '3D 地图暂不可用',
+        instructionSub: '请检查网络或地图资源访问'
+      }));
+    });
+
+    return () => {
+      disposed = true;
+      if (intervalId) clearInterval(intervalId);
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+        carMarkerRef.current = null;
+      }
+    };
   }, []);
-  const progress = tick / 99;
-  const eta = Math.max(1, Math.round(36 * (1 - progress)));
-  const distance = (12.4 * (1 - progress)).toFixed(1);
-  const arrival = new Date(Date.now() + eta * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 
   return (
     <div className="flex h-full flex-col animate-fade-in">
       <TopBar title="行程" subtitle="实时掌握路线、时间与到达进度" time={time} />
       <div className="relative mb-6 h-[45%] shrink-0 overflow-hidden rounded-3xl border border-[#222B3B] bg-[#0A0E17] shadow-xl">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(217,184,127,0.12),transparent_32%),linear-gradient(135deg,rgba(255,255,255,0.03)_25%,transparent_25%),linear-gradient(45deg,rgba(255,255,255,0.025)_25%,transparent_25%)] bg-[size:100%_100%,34px_34px,34px_34px]" />
-        <RouteSvg progress={progress} />
+        <div ref={mapContainer} className="absolute inset-0 h-full w-full" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_40%,rgba(6,9,15,0.65)_100%)]" />
         <div className="pointer-events-none absolute left-6 top-6 z-10 flex items-start space-x-6 rounded-2xl border border-[#222B3B] bg-[#111722]/90 p-6 shadow-2xl backdrop-blur-xl">
           <Navigation size={48} className="mt-1 rotate-45 text-[#D9B87F]" />
           <div>
-            <p className="mb-2 text-3xl font-medium">前方 600 米右转</p>
-            <p className="text-[#8B94A5]">进入金融街南街</p>
+            <p className="mb-2 text-3xl font-medium">{trip.instructionTitle}</p>
+            <p className="text-[#8B94A5]">{trip.instructionSub}</p>
             <div className="mt-4 flex gap-2"><span className="h-1.5 w-8 rounded-full bg-[#D9B87F] shadow-[0_0_8px_#D9B87F]" /><span className="h-1.5 w-3 rounded-full bg-[#2A3448]" /><span className="h-1.5 w-3 rounded-full bg-[#2A3448]" /></div>
           </div>
+        </div>
+        <div className="pointer-events-none absolute right-6 top-6 z-10 rounded-full border border-[#D9B87F]/30 bg-[#111722]/85 px-4 py-2 text-sm text-[#D9B87F] shadow-xl backdrop-blur-xl">
+          {trip.status}
         </div>
       </div>
       <div className="mb-6 flex gap-4">
         {[
-          { label: '预计剩余', value: eta, unit: '分钟', icon: Clock },
-          { label: '剩余距离', value: distance, unit: '公里', icon: Navigation },
-          { label: '预计到达', value: arrival, unit: '', icon: CheckCircle2 },
-          { label: '当前时速', value: 44 + Math.round(Math.sin(progress * 12) * 7), unit: 'km/h', icon: Thermometer }
+          { label: '预计剩余', value: trip.etaMins, unit: '分钟', icon: Clock },
+          { label: '剩余距离', value: trip.distanceLeft, unit: '公里', icon: Navigation },
+          { label: '预计到达', value: trip.arrivalTime, unit: '', icon: CheckCircle2 },
+          { label: '当前时速', value: trip.currentSpeed, unit: 'km/h', icon: Thermometer }
         ].map((stat) => <StatCard key={stat.label} {...stat} />)}
       </div>
       <Panel className="mb-6 rounded-3xl p-8">
         <div className="relative flex items-center justify-between">
           <div className="absolute left-6 right-6 top-3 h-px bg-[#2A3448]" />
-          <div className="absolute left-6 top-3 h-px bg-[#D9B87F] shadow-[0_0_10px_#D9B87F]" style={{ width: `${35 + progress * 35}%` }} />
+          <div className="absolute left-6 top-3 h-px bg-[#D9B87F] shadow-[0_0_10px_#D9B87F]" style={{ width: `${Math.min(82, 20 + trip.progress * 62)}%` }} />
           {['北京金融街购物中心', '金融街南街', '复兴门内大街', '建国门桥', '国贸三期写字楼'].map((desc, i) => (
             <div key={desc} className="relative flex w-[20%] flex-col items-center text-center">
               <div className={`mb-4 flex h-6 w-6 items-center justify-center rounded-full ${i < 2 ? 'bg-[#D9B87F]' : i === 2 ? 'bg-[#D9B87F] shadow-[0_0_15px_#D9B87F] ring-4 ring-[#111722]' : 'bg-[#2A3448]'}`}>
                 {i < 2 ? <CheckCircle2 size={14} className="text-[#111722]" /> : i === 2 ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
               </div>
               <p className={i <= 2 ? 'text-sm text-white' : 'text-sm text-[#8B94A5]'}>{desc}</p>
-              <p className="mt-1 text-[11px] text-[#8B94A5]">{i === 4 ? `${arrival} 预计到达` : `14:${12 + i * 6}`}</p>
+              <p className="mt-1 text-[11px] text-[#8B94A5]">{i === 4 ? `${trip.arrivalTime === '--:--' ? '14:48' : trip.arrivalTime} 预计到达` : `14:${12 + i * 6}`}</p>
             </div>
           ))}
         </div>
@@ -371,16 +486,168 @@ function TripScreen({ time }) {
   );
 }
 
-function RouteSvg({ progress }) {
-  const p = fallbackRoute.map(([x, y]) => `${(x - 114.39) * 2600},${(38.08 - y) * 3000}`).join(' ');
-  return (
-    <svg className="absolute inset-0 h-full w-full" viewBox="0 0 260 150" preserveAspectRatio="none">
-      <polyline points={p} fill="none" stroke="#ffb86a" strokeWidth="12" strokeOpacity=".22" strokeLinecap="round" strokeLinejoin="round" />
-      <polyline points={p} fill="none" stroke="#ffc783" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-      <polyline points={p} fill="none" stroke="#fff0c8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={55 + progress * 150} cy={38 + Math.sin(progress * 8) * 22} r="6" fill="#ffd49a" filter="drop-shadow(0 0 10px #ffb86a)" />
-    </svg>
+function loadMapLibre() {
+  return new Promise((resolve, reject) => {
+    if (window.maplibregl) {
+      resolve();
+      return;
+    }
+
+    if (!document.getElementById('maplibre-css')) {
+      const css = document.createElement('link');
+      css.id = 'maplibre-css';
+      css.rel = 'stylesheet';
+      css.href = 'https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css';
+      document.head.appendChild(css);
+    }
+
+    const existingScript = document.getElementById('maplibre-js');
+    if (existingScript) {
+      waitForMapLibre(resolve, reject);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = 'maplibre-js';
+    script.src = 'https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js';
+    script.onload = () => waitForMapLibre(resolve, reject);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+function waitForMapLibre(resolve, reject) {
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts += 1;
+    if (window.maplibregl) {
+      clearInterval(timer);
+      resolve();
+    } else if (attempts > 80) {
+      clearInterval(timer);
+      reject(new Error('maplibre timeout'));
+    }
+  }, 50);
+}
+
+async function fetchRouteFromOSRM() {
+  const url = `https://router.project-osrm.org/route/v1/driving/${START[0]},${START[1]};${END[0]},${END[1]}?overview=full&geometries=geojson&steps=true`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const route = data.routes?.[0];
+    if (!route?.geometry?.coordinates?.length) throw new Error('no route');
+
+    return {
+      raw: route,
+      coords: route.geometry.coordinates,
+      distance: route.distance,
+      duration: route.duration
+    };
+  } catch {
+    return null;
+  }
+}
+
+function drawMapRoute(map, coords) {
+  const geojson = {
+    type: 'Feature',
+    geometry: { type: 'LineString', coordinates: coords },
+    properties: {}
+  };
+
+  if (map.getSource('route')) {
+    map.getSource('route').setData(geojson);
+    return;
+  }
+
+  map.addSource('route', { type: 'geojson', data: geojson });
+
+  map.addLayer({
+    id: 'route-glow',
+    type: 'line',
+    source: 'route',
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': '#ffb86a', 'line-width': 20, 'line-opacity': 0.28, 'line-blur': 6 }
+  });
+
+  map.addLayer({
+    id: 'route-main',
+    type: 'line',
+    source: 'route',
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': '#ffc783', 'line-width': 8, 'line-opacity': 0.95 }
+  });
+
+  map.addLayer({
+    id: 'route-core',
+    type: 'line',
+    source: 'route',
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': '#fff0c8', 'line-width': 2.5, 'line-opacity': 1 }
+  });
+
+  new window.maplibregl.Marker({ color: '#54d6b0' }).setLngLat(coords[0]).addTo(map);
+  new window.maplibregl.Marker({ color: '#ffc783' }).setLngLat(coords[coords.length - 1]).addTo(map);
+}
+
+function fitMapRoute(map, coords) {
+  const bounds = coords.reduce(
+    (box, coord) => box.extend(coord),
+    new window.maplibregl.LngLatBounds(coords[0], coords[0])
   );
+  map.fitBounds(bounds, { padding: 90, pitch: 58, bearing: -18, duration: 1200 });
+}
+
+function updateTripInfo(progress, distanceMeters, durationSeconds, setTrip) {
+  const leftMeters = Math.max(0, distanceMeters * (1 - progress));
+  const leftSeconds = Math.max(0, durationSeconds * (1 - progress));
+  const arrival = new Date(Date.now() + leftSeconds * 1000);
+
+  setTrip((prev) => ({
+    ...prev,
+    distanceLeft: (leftMeters / 1000).toFixed(1),
+    etaMins: Math.max(1, Math.round(leftSeconds / 60)).toString(),
+    currentSpeed: (36 + Math.round(Math.sin(progress * 12) * 8 + 8)).toString(),
+    arrivalTime: arrival.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+    progress
+  }));
+}
+
+function estimateDistance(coords) {
+  let total = 0;
+  for (let i = 1; i < coords.length; i += 1) total += haversine(coords[i - 1], coords[i]);
+  return total;
+}
+
+function haversine(a, b) {
+  const R = 6371000;
+  const toRad = (x) => x * Math.PI / 180;
+  const dLat = toRad(b[1] - a[1]);
+  const dLng = toRad(b[0] - a[0]);
+  const lat1 = toRad(a[1]);
+  const lat2 = toRad(b[1]);
+  const x = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+
+function calcBearing(a, b) {
+  const toRad = (d) => d * Math.PI / 180;
+  const toDeg = (r) => r * 180 / Math.PI;
+  const lon1 = toRad(a[0]);
+  const lon2 = toRad(b[0]);
+  const lat1 = toRad(a[1]);
+  const lat2 = toRad(b[1]);
+  const y = Math.sin(lon2 - lon1) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+function firstInstruction(route) {
+  const step = route.legs?.[0]?.steps?.[0];
+  if (!step) return '沿路线前往新百广场';
+  return `沿 ${step.name || '当前道路'} 行驶`;
 }
 
 function StatCard({ icon: Icon, label, value, unit }) {

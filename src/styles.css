@@ -34,3 +34,34 @@ input {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(217, 184, 127, 0.35);
 }
+
+.car-marker {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111722;
+  background: #ffd49a;
+  box-shadow:
+    0 0 0 10px rgba(255, 184, 106, 0.18),
+    0 0 34px rgba(255, 184, 106, 0.65);
+  will-change: transform;
+}
+
+.car-body {
+  transform: translateY(-2px);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.maplibregl-ctrl-group {
+  background: rgba(17, 23, 34, 0.86) !important;
+  border: 1px solid rgba(217, 184, 127, 0.18);
+  overflow: hidden;
+}
+
+.maplibregl-ctrl button {
+  filter: invert(1) sepia(0.2);
+}
