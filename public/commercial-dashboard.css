@@ -1,0 +1,352 @@
+/* Commercial RideLux tablet dashboard redesign */
+:root {
+  --lux-bg: #05070c;
+  --lux-panel: rgba(15, 22, 34, 0.94);
+  --lux-panel-2: rgba(20, 29, 45, 0.92);
+  --lux-line: rgba(151, 164, 190, 0.16);
+  --lux-gold: #d9b87f;
+  --lux-text: #f5f7fb;
+  --lux-muted: #8c96a8;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--lux-bg);
+}
+
+.app-shell {
+  height: 100dvh;
+  background:
+    radial-gradient(circle at 82% 86%, rgba(196, 132, 63, 0.13), transparent 34%),
+    radial-gradient(circle at 28% 10%, rgba(56, 82, 128, 0.18), transparent 38%),
+    linear-gradient(180deg, #05070c 0%, #070b13 100%);
+}
+
+.sidebar {
+  width: 94px !important;
+  padding: 16px 10px !important;
+  border-right: 1px solid rgba(217, 184, 127, 0.08);
+  background: linear-gradient(180deg, rgba(4, 7, 12, 0.98), rgba(5, 8, 14, 0.96));
+}
+
+.brand-orb {
+  width: 46px !important;
+  height: 46px !important;
+  margin-bottom: 18px !important;
+  font-size: 17px !important;
+}
+
+.nav-button {
+  width: 66px !important;
+  height: 58px !important;
+  gap: 4px !important;
+  border-left-width: 3px !important;
+  border-radius: 16px !important;
+}
+
+.nav-button svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.nav-button span {
+  max-width: 58px !important;
+  font-size: 10px !important;
+}
+
+.call-button {
+  width: 70px !important;
+  min-height: 50px !important;
+  border-radius: 14px !important;
+  font-size: 10px !important;
+}
+
+.main-surface {
+  min-height: 0;
+}
+
+.main-scroll {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden !important;
+  padding: 18px 22px 18px 24px !important;
+}
+
+.screen-frame {
+  display: grid !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  grid-template-rows: auto 118px minmax(0, 1fr) !important;
+  gap: 14px !important;
+}
+
+.screen-frame > header,
+.screen-frame > div:first-child:not([class*="grid"]):not(.map-panel),
+.screen-frame > .flex:first-child {
+  min-height: 54px;
+}
+
+.panel {
+  border-color: var(--lux-line) !important;
+  border-radius: 24px !important;
+  background:
+    linear-gradient(180deg, rgba(20, 29, 45, 0.94), rgba(11, 17, 28, 0.94)) !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24) !important;
+}
+
+.hero-banner {
+  min-height: 0 !important;
+  height: 118px !important;
+  border-color: var(--lux-line) !important;
+  border-radius: 24px !important;
+  padding: 0 30px !important;
+  background:
+    linear-gradient(100deg, rgba(8, 13, 23, 0.97), rgba(20, 31, 51, 0.9)),
+    radial-gradient(circle at 80% 30%, rgba(217, 184, 127, 0.18), transparent 40%) !important;
+}
+
+.hero-image {
+  opacity: 0.2 !important;
+}
+
+.hero-line {
+  left: 36% !important;
+  top: 52% !important;
+  opacity: 0.35 !important;
+}
+
+.hero-banner h2 {
+  margin-bottom: 6px !important;
+  font-size: 24px !important;
+  line-height: 1.1 !important;
+}
+
+.hero-banner h3 {
+  font-size: 22px !important;
+  line-height: 1.2 !important;
+}
+
+.hero-banner .mt-6 {
+  margin-top: 14px !important;
+}
+
+.hero-cta {
+  right: 26px !important;
+  bottom: 28px !important;
+  padding: 9px 15px !important;
+}
+
+/* Home dashboard: full-height commercial grid */
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] {
+  display: grid !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  grid-template-columns: minmax(340px, 0.78fr) minmax(0, 1.55fr) !important;
+  gap: 14px !important;
+  align-items: stretch !important;
+}
+
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] > .grid.grid-rows-\[1fr_170px\] {
+  min-height: 0 !important;
+  grid-template-rows: minmax(0, 1fr) 140px !important;
+  gap: 14px !important;
+}
+
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] > .grid.grid-rows-\[270px_170px_96px\] {
+  min-height: 0 !important;
+  grid-template-rows: minmax(0, 1.05fr) minmax(118px, 0.62fr) 82px !important;
+  gap: 14px !important;
+}
+
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] .grid-cols-\[1\.2fr_\.9fr\] {
+  min-height: 0 !important;
+  grid-template-columns: minmax(0, 1.24fr) minmax(260px, 0.76fr) !important;
+  gap: 14px !important;
+}
+
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] .panel {
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] .p-6 {
+  padding: 18px !important;
+}
+
+/* Make the trip card look intentional when it grows to bottom */
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] > .grid:first-child > .panel:first-child {
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+}
+
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] > .grid:first-child > .panel:first-child > .mb-5 {
+  min-height: 0 !important;
+  margin-bottom: 14px !important;
+  align-items: stretch !important;
+}
+
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] > .grid:first-child > .panel:first-child .text-2xl {
+  font-size: 26px !important;
+  line-height: 1.2 !important;
+}
+
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] > .grid:first-child > .panel:first-child .mini-map,
+.screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] > .grid:first-child > .panel:first-child svg {
+  max-width: 100%;
+}
+
+.quick-card,
+.service-tile,
+.icon-tile,
+.control-button,
+.settings-tile,
+.driver-result,
+.driver-request,
+.track-row,
+.video-row,
+.news-card,
+.restaurant-card,
+.joke-card {
+  border-color: rgba(146, 160, 190, 0.15) !important;
+  background: linear-gradient(180deg, rgba(29, 39, 59, 0.92), rgba(18, 25, 39, 0.9)) !important;
+}
+
+.quick-card:hover,
+.service-tile:hover,
+.icon-tile:hover,
+.control-button:hover,
+.settings-tile:hover,
+.driver-result:hover,
+.driver-request:hover,
+.track-row:hover,
+.video-row:hover,
+.news-card:hover,
+.restaurant-card:hover {
+  border-color: rgba(217, 184, 127, 0.58) !important;
+  background: linear-gradient(180deg, rgba(38, 49, 72, 0.96), rgba(23, 31, 47, 0.94)) !important;
+}
+
+.quick-card {
+  min-height: 0 !important;
+  grid-template-rows: 30px auto auto !important;
+  padding: 12px !important;
+  border-radius: 18px !important;
+}
+
+.quick-card span {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.service-tile,
+.icon-tile {
+  min-height: 0 !important;
+  border-radius: 18px !important;
+  gap: 6px !important;
+  padding: 10px !important;
+}
+
+.service-tile svg,
+.icon-tile svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.screen-frame .h-\[190px\],
+.screen-frame .h-\[90px\] {
+  height: 100% !important;
+}
+
+.comfort-grid {
+  padding: 10px !important;
+  gap: 8px !important;
+  border-color: rgba(151, 164, 190, 0.12) !important;
+}
+
+.trip-center-button {
+  width: 72px !important;
+  height: 72px !important;
+  border-width: 3px !important;
+}
+
+.control-button {
+  min-height: 0 !important;
+  height: 100% !important;
+  border-radius: 16px !important;
+}
+
+.control-button svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.control-button span,
+.trip-center-button span {
+  font-size: 10px !important;
+}
+
+.control-button small {
+  font-size: 9px !important;
+}
+
+/* Other pages also use the whole tablet instead of floating at top */
+.map-panel {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.screen-frame:has(.map-panel) {
+  grid-template-rows: auto minmax(0, 1.4fr) 96px 104px minmax(82px, 0.45fr) !important;
+}
+
+.large-action-card {
+  height: auto !important;
+  min-height: 138px !important;
+}
+
+.player-hero {
+  min-height: 0 !important;
+  grid-template-columns: 180px minmax(0, 1fr) !important;
+}
+
+.player-hero img {
+  width: 180px !important;
+  height: 180px !important;
+}
+
+.wifi-hero {
+  min-height: 150px !important;
+}
+
+@media (max-height: 760px) {
+  .main-scroll {
+    padding: 14px 18px !important;
+  }
+
+  .screen-frame {
+    grid-template-rows: auto 104px minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .hero-banner {
+    height: 104px !important;
+  }
+
+  .screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] {
+    gap: 12px !important;
+  }
+
+  .screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] > .grid.grid-rows-\[1fr_170px\] {
+    grid-template-rows: minmax(0, 1fr) 124px !important;
+    gap: 12px !important;
+  }
+
+  .screen-frame > .grid.min-h-0.flex-1.grid-cols-\[\.9fr_1\.7fr\] > .grid.grid-rows-\[270px_170px_96px\] {
+    grid-template-rows: minmax(0, 1fr) minmax(106px, 0.55fr) 72px !important;
+    gap: 12px !important;
+  }
+}
