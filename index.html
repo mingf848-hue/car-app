@@ -2,36 +2,12 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Car App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>RideLux 后排管家</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23D9B87F'/%3E%3Ctext x='32' y='40' text-anchor='middle' font-size='28' font-family='Arial' font-weight='700' fill='%2306090F'%3EM%3C/text%3E%3C/svg%3E" />
-    <link rel="stylesheet" href="/commercial-dashboard.css?v=1" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            animation: {
-              "fade-in": "fadeIn 420ms ease-out",
-              pulsebar: "pulsebar 1.4s ease-in-out infinite"
-            },
-            keyframes: {
-              fadeIn: {
-                "0%": { opacity: 0, transform: "translateY(8px)" },
-                "100%": { opacity: 1, transform: "translateY(0)" }
-              },
-              pulsebar: {
-                "0%, 100%": { transform: "scaleY(.55)" },
-                "50%": { transform: "scaleY(1)" }
-              }
-            }
-          }
-        }
-      };
-    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/image-main.jsx"></script>
   </body>
 </html>
